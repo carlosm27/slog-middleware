@@ -15,7 +15,7 @@ func main() {
 	mux.Handle("/", LoggingMiddleware(finalHandler))
 
 	slog.Info("Listening on ", "port", port)
-	
+
 	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		slog.Warn("Problem starting the server", "error", err)
