@@ -12,7 +12,9 @@ func main() {
 
 	logger := slog.Default()
 	finalHandler := http.HandlerFunc(homeHandler)
+
 	mux.Handle("/", LoggingMiddleware(finalHandler))
+	mux.Handle("/hello", http.HandlerFunc(helloHandler))
 
 	logger.Info("Listening on ", "port", port)
 
@@ -29,6 +31,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Helloooo"))
+}
+
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//var resp http.Response
@@ -37,14 +43,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		logger.Info("Request Info",
 			slog.String("method", r.Method),
 			slog.String("path", r.RequestURI),
-			//slog.String("status", StatusCode),
+			slog.String("url", r.URL.Path),
+			slog.String("host", r.Host),
 		)
 		next.ServeHTTP(w, r)
-		statusCode := w.Header().Get("Status")
-		logger.Info("Request Info",
-			slog.String("method", r.Method),
-			slog.String("path", r.RequestURI),
-			slog.String("status", statusCode),
-		)
+
 	})
 }
